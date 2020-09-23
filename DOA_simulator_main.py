@@ -51,6 +51,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Connect spinbox signals
         self.doubleSpinBox_simulation_update_time.valueChanged.connect(self.set_update_time)
         
+        self.spinBox_noa.valueChanged.connect(self.antenna_number_changed)
+        self.antenna_number_changed()
         #self.horizontalSlider_source_DOA.valueChanged.connect(self.set_DOA_params)
         # Processing parameters
        
@@ -65,7 +67,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # 
     #-----------------------------------------------------------------
     def set_update_time(self):        
-        self.timer.setInterval(self.doubleSpinBox_simulation_update_time.value()*1000)                
+        self.timer.setInterval(self.doubleSpinBox_simulation_update_time.value()*1000)  
+    
+    def antenna_number_changed(self):
+        uca_unamb_radius = 1/(2*np.sqrt(2*(1-np.cos(np.deg2rad(360/self.spinBox_noa.value())))))
+        self.label_uca_unamb_radius.setText("{:1.4f}".format(uca_unamb_radius))
+              
     def DOA_demo(self):
         self.logger.debug("-> Running simulation <-")
         
@@ -119,12 +126,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
         if self.checkBox_en_UCA.checkState():
             #---------------- U C A-------------------
-            # Spatial signiture vector
-            a = np.ones(M, dtype=complex)        
-            for i in np.arange(0,M,1):   
-                 a[i] = np.exp(1j*2*np.pi*r*np.cos(np.radians(soi_theta-i*(360)/M))) # UCA   
-                 #print("%d - %.2f"%(i,a[i]))
-            soi_matrix  = (np.outer( soi, a)).T                 
+            
+            A = np.zeros((M, K), dtype=complex)
+            
+            for k in range(K):
+                A[:,k] = np.exp(1j*2*np.pi*r*np.cos(np.radians(thetas[k]-np.arange(0,M,1)*(360)/M))) # UCA
+            
+            soi_matrix  = (np.outer( soi, np.inner(A, alphas))).T                 
             
             # Create received signal
             rec_signal = soi_matrix + noise
@@ -167,11 +175,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             A = np.zeros((M, K), dtype=complex)
             
             for k in range(K):
-                A[:,k] = np.exp(np.arange(0,M,1)*1j*2*np.pi*d*np.cos(np.deg2rad(thetas[k])))    
-            
-            
-            # Spatial signiture vector
-            #a = np.exp(np.arange(0,M,1)*1j*2*np.pi*d*np.cos(np.deg2rad(soi_theta)))
+                A[:,k] = np.exp(np.arange(0,M,1)*1j*2*np.pi*d*np.cos(np.deg2rad(thetas[k])))                
             
             soi_matrix  = (np.outer( soi, np.inner(A, alphas))).T                 
             
@@ -193,25 +197,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.checkBox_en_Bartlett.checkState():
                 Bartlett = de.DOA_Bartlett(R, scanning_vectors)    
                 de.DOA_plot(Bartlett, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)                
-                legend.append("ULA-Bartlett")
+                legend.append("ULA - Bartlett")
                 alias_highlight = False
             
             if self.checkBox_en_Capon.checkState():
                 Capon  = de.DOA_Capon(R, scanning_vectors)
                 de.DOA_plot(Capon, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
-                legend.append("ULA-Capon")
+                legend.append("ULA - Capon")
                 alias_highlight = False
     
             if self.checkBox_en_MEM.checkState():
                 MEM = de.DOA_MEM(R, scanning_vectors,  column_select = 0)
                 de.DOA_plot(MEM, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
-                legend.append("ULA-MEM")
+                legend.append("ULA - MEM")
                 alias_highlight = False
     
             if self.checkBox_en_MUSIC.checkState():
                 MUSIC = de.DOA_MUSIC(R, scanning_vectors, signal_dimension = 1)
                 de.DOA_plot(MUSIC, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
-                legend.append("ULA-MUSIC")
+                legend.append("ULA - MUSIC")
                 alias_highlight = False
             
         self.axes_DOA.legend(legend)        
