@@ -60,7 +60,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.DOA_demo)
-        self.timer.start(1000)
+        self.timer.start(self.doubleSpinBox_simulation_update_time.value()*1000)
         
 
     #-----------------------------------------------------------------
@@ -152,22 +152,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if self.checkBox_en_Bartlett.checkState():
                 Bartlett = de.DOA_Bartlett(R, scanning_vectors)  
                 de.DOA_plot(Bartlett, self.thetas, log_scale_min = -50, axes=self.axes_DOA)
-                legend.append("UCA - Bartlett")
+                legend.append("UCA - Bartlett")        
+                self.label_Bartlett_UCA_res.setText("{:.1f}".format(np.argmax(Bartlett)))
+            else:
+                self.label_Bartlett_UCA_res.setText("-")
             
             if self.checkBox_en_Capon.checkState():
                 Capon = de.DOA_Capon(R, scanning_vectors)
                 de.DOA_plot(Capon, self.thetas, log_scale_min = -50, axes=self.axes_DOA)
                 legend.append("UCA - Capon")
+                self.label_Capon_UCA_res.setText("{:.1f}".format(np.argmax(Capon)))
+            else:
+                self.label_Capon_UCA_res.setText("-")
     
             if self.checkBox_en_MEM.checkState():
                 MEM = de.DOA_MEM(R, scanning_vectors,  column_select = 0)
                 de.DOA_plot(MEM, self.thetas, log_scale_min = -50, axes=self.axes_DOA)
                 legend.append("MEM")
+                self.label_MEM_UCA_res.setText("{:.1f}".format(np.argmax(MEM)))
+            else:
+                self.label_MEM_UCA_res.setText("-")
     
             if self.checkBox_en_MUSIC.checkState():
                 MUSIC = de.DOA_MUSIC(R, scanning_vectors, signal_dimension = 1)
                 de.DOA_plot(MUSIC, self.thetas, log_scale_min = -50, axes=self.axes_DOA)
                 legend.append("MUSIC")
+                self.label_MUSIC_UCA_res.setText("{:.1f}".format(np.argmax(MUSIC)))
+            else:
+                self.label_MUSIC_UCA_res.setText("-")
+
         
         if self.checkBox_en_ULA.checkState():
             #---------------- U L A-------------------            
@@ -199,24 +212,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 de.DOA_plot(Bartlett, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)                
                 legend.append("ULA - Bartlett")
                 alias_highlight = False
+                self.label_Bartlett_ULA_res.setText("{:.1f}".format(np.argmax(Bartlett)))
+            else:
+                self.label_Bartlett_ULA_res.setText("-")
             
             if self.checkBox_en_Capon.checkState():
                 Capon  = de.DOA_Capon(R, scanning_vectors)
                 de.DOA_plot(Capon, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - Capon")
                 alias_highlight = False
+                self.label_Capon_ULA_res.setText("{:.1f}".format(np.argmax(Capon)))
+            else:
+                self.label_Capon_ULA_res.setText("-")
+
     
             if self.checkBox_en_MEM.checkState():
                 MEM = de.DOA_MEM(R, scanning_vectors,  column_select = 0)
                 de.DOA_plot(MEM, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - MEM")
                 alias_highlight = False
+                self.label_MEM_ULA_res.setText("{:.1f}".format(np.argmax(MEM)))
+            else:
+                self.label_MEM_ULA_res.setText("-")
     
             if self.checkBox_en_MUSIC.checkState():
                 MUSIC = de.DOA_MUSIC(R, scanning_vectors, signal_dimension = 1)
                 de.DOA_plot(MUSIC, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - MUSIC")
                 alias_highlight = False
+                self.label_MUSIC_ULA_res.setText("{:.1f}".format(np.argmax(MUSIC)))
+            else:
+                self.label_MUSIC_ULA_res.setText("-")
+
             
         self.axes_DOA.legend(legend)        
         self.canvas_DOA.draw()    
