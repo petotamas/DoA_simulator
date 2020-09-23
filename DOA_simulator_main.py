@@ -85,23 +85,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         K = 1 + self.spinBox_multipath_components.value()
         alphas = [1.0]
         thetas = [soi_theta]
-        
-        multipath_alphas_str= self.lineEdit_multipath_amplitudes.text().split(',')
-        if self.checkBox_multipath_random_angles.isChecked():                    
-            multipath_angles_str = ""
-            for k in range(K-1):
-                thetas.append(np.random.uniform(0,360))
-                multipath_angles_str += "{:3.1f},".format(thetas[-1])
-            self.lineEdit_multipath_angles.setText(multipath_angles_str[:len(multipath_angles_str)-1])
+        try:
+            multipath_alphas_str= self.lineEdit_multipath_amplitudes.text().split(',')
+            if self.checkBox_multipath_random_angles.isChecked():                    
+                multipath_angles_str = ""
+                for k in range(K-1):
+                    thetas.append(np.random.uniform(0,360))
+                    multipath_angles_str += "{:3.1f},".format(thetas[-1])
+                self.lineEdit_multipath_angles.setText(multipath_angles_str[:len(multipath_angles_str)-1])
+                
+            multipath_angles_str= self.lineEdit_multipath_angles.text().split(',')        
             
-        multipath_angles_str= self.lineEdit_multipath_angles.text().split(',')        
-        
-        # Add multipath parameters
-        for k in range(K-1):
-            alphas.append(float(multipath_alphas_str[k]))
-            thetas.append(float(multipath_angles_str[k]))            
-            logging.debug("k: {:d}, alpha:{:f} theta:{:f}".format(k,alphas[k+1],thetas[k+1]))
-        
+            # Add multipath parameters
+            for k in range(K-1):
+                alphas.append(float(multipath_alphas_str[k]))
+                thetas.append(float(multipath_angles_str[k]))            
+                logging.debug("k: {:d}, alpha:{:f} theta:{:f}".format(k,alphas[k+1],thetas[k+1]))
+            self.label_status.setText("<span style=\" font-size:8pt; font-weight:600; color:#01df01;\" >Running simulation</span>")
+        except:
+            K=1
+            alphas = [1.0]
+            thetas = [soi_theta]            
+            self.label_status.setText("<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >Improper multipath parameters</span>")
+
         alphas = 10**(np.array(alphas)/10)
         
         noise_pow = 10**(-1*self.spinBox_snr_dB.value()/10)
@@ -111,10 +117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Generate multichannel uncorrelated noise
         noise = np.random.normal(0, np.sqrt(noise_pow), (M,N) ) +1j* np.random.normal(0, np.sqrt(noise_pow), (M,N) )
-        
-        
-        
-        
+          
         """ SNR display  
         pn = np.average(np.abs(noise**2))
         ps = np.average(np.abs(soi**2))
@@ -212,7 +215,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 de.DOA_plot(Bartlett, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)                
                 legend.append("ULA - Bartlett")
                 alias_highlight = False
-                self.label_Bartlett_ULA_res.setText("{:.1f}".format(np.argmax(Bartlett)))
+                self.label_Bartlett_ULA_res.setText("{:.1f}".format(np.argmax(Bartlett[0:180])))
             else:
                 self.label_Bartlett_ULA_res.setText("-")
             
@@ -221,7 +224,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 de.DOA_plot(Capon, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - Capon")
                 alias_highlight = False
-                self.label_Capon_ULA_res.setText("{:.1f}".format(np.argmax(Capon)))
+                self.label_Capon_ULA_res.setText("{:.1f}".format(np.argmax(Capon[0:180])))
             else:
                 self.label_Capon_ULA_res.setText("-")
 
@@ -231,7 +234,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 de.DOA_plot(MEM, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - MEM")
                 alias_highlight = False
-                self.label_MEM_ULA_res.setText("{:.1f}".format(np.argmax(MEM)))
+                self.label_MEM_ULA_res.setText("{:.1f}".format(np.argmax(MEM[0:180])))
             else:
                 self.label_MEM_ULA_res.setText("-")
     
@@ -240,7 +243,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 de.DOA_plot(MUSIC, self.thetas, log_scale_min = -50, axes=self.axes_DOA, alias_highlight=alias_highlight, d=d)
                 legend.append("ULA - MUSIC")
                 alias_highlight = False
-                self.label_MUSIC_ULA_res.setText("{:.1f}".format(np.argmax(MUSIC)))
+                self.label_MUSIC_ULA_res.setText("{:.1f}".format(np.argmax(MUSIC[0:180])))
             else:
                 self.label_MUSIC_ULA_res.setText("-")
 
