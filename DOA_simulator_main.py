@@ -85,30 +85,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         K = 1 + self.spinBox_multipath_components.value()
         alphas = [1.0]
         thetas = [soi_theta]
+        phases = [0]
         try:
             multipath_alphas_str= self.lineEdit_multipath_amplitudes.text().split(',')
-            if self.checkBox_multipath_random_angles.isChecked():                    
+            if self.checkBox_multipath_random_angles.isChecked():
                 multipath_angles_str = ""
                 for k in range(K-1):
-                    thetas.append(np.random.uniform(0,360))
-                    multipath_angles_str += "{:3.1f},".format(thetas[-1])
-                self.lineEdit_multipath_angles.setText(multipath_angles_str[:len(multipath_angles_str)-1])
-                
-            multipath_angles_str= self.lineEdit_multipath_angles.text().split(',')        
+                    theta_rnd=np.random.uniform(0,360)
+                    multipath_angles_str += "{:3.1f},".format(theta_rnd)
+
+            if self.checkBox_multipath_random_phases.isChecked():                    
+                multipath_phases_str = ""
+                for k in range(K-1):
+                    phase_rnd=np.random.uniform(0,360)
+                    multipath_phases_str += "{:3.1f},".format(phase_rnd)
+
+                self.lineEdit_multipath_phases.setText(multipath_phases_str[:len(multipath_phases_str)-1])
+            
+            multipath_angles_str= self.lineEdit_multipath_angles.text().split(',')
+            multipath_phases_str= self.lineEdit_multipath_phases.text().split(',')
             
             # Add multipath parameters
             for k in range(K-1):
                 alphas.append(float(multipath_alphas_str[k]))
-                thetas.append(float(multipath_angles_str[k]))            
-                logging.debug("k: {:d}, alpha:{:f} theta:{:f}".format(k,alphas[k+1],thetas[k+1]))
+                thetas.append(float(multipath_angles_str[k]))
+                phases.append(float(multipath_phases_str[k]))
+                logging.debug("k: {:d}, alpha:{:f} phi:{:f} theta:{:f}".format(k,alphas[k+1],phases[k+1], thetas[k+1]))
             self.label_status.setText("<span style=\" font-size:8pt; font-weight:600; color:#01df01;\" >Running simulation</span>")
         except:
             K=1
             alphas = [1.0]
+            phases = [0]
             thetas = [soi_theta]            
             self.label_status.setText("<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >Improper multipath parameters</span>")
 
-        alphas = 10**(np.array(alphas)/10)
+        alphas = 10**(np.array(alphas)/10) * np.exp(1j*np.deg2rad(np.array(phases)))
         
         noise_pow = 10**(-1*self.spinBox_snr_dB.value()/10)
         
