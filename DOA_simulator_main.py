@@ -1,3 +1,6 @@
+# Project : PyArgus
+# Author  : Tamas Peto
+# License : GNU GPL V3 
 # -*- coding: utf-8 -*-
 
 import sys
@@ -46,14 +49,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.axes_DOA.set_ylabel('Incident angle')
         
         # Connect checkbox signals
-#        self.checkBox_en_ula.stateChanged.connect(self.set_DOA_params)        
         
         # Connect spinbox signals
         self.doubleSpinBox_simulation_update_time.valueChanged.connect(self.set_update_time)
         
         self.spinBox_noa.valueChanged.connect(self.antenna_number_changed)
         self.antenna_number_changed()
-        #self.horizontalSlider_source_DOA.valueChanged.connect(self.set_DOA_params)
         # Processing parameters
        
         self.thetas =  np.linspace(0,360,361)
@@ -129,7 +130,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Generate multichannel uncorrelated noise
         noise = np.random.normal(0, np.sqrt(noise_pow), (M,N) ) +1j* np.random.normal(0, np.sqrt(noise_pow), (M,N) )
           
-        """ SNR display  
+        """ SNR debug display  
         pn = np.average(np.abs(noise**2))
         ps = np.average(np.abs(soi**2))
         logging.info("SNR: {:.2f}".format(10*np.log10(ps/pn)))
