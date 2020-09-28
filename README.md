@@ -39,6 +39,24 @@ In this configuration panel the user can enable or diable the applied DoA estima
 Can have the following states:
 - Running simulation: All impput parameters are correct.
 - Improper multipath parameters: Parameters for the number of configured multipath components are incorrect. 
-  
+
+**Required python libraries**  
+
+- PyQt5
+- Numpy
+- Matplotlib
+- PyArgus
+
+**Run**  
+
+You can run the simulator in shell:
+```shell 
+python DOA_simulator_main.py
+```
+**Acknowledgements**
+
+This work was supported by the RTL-SDR site (https://www.rtl-sdr.com/) and the development team of the Kerberos-SDR (http://kerberossdr.com/)
+
+
   
 
