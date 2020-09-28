@@ -53,10 +53,13 @@ You can run the simulator in shell:
 ```shell 
 python DOA_simulator_main.py
 ```
+
+**Implementation**
+More information about the implementation and the simulation methodology can be found here:  
+https://github.com/petotamas/DoA_simulator/blob/master/simulation_methodology.ipynb
+
 **Acknowledgements**
 
 This work was supported by the RTL-SDR site (https://www.rtl-sdr.com/) and the development team of the Kerberos-SDR (http://kerberossdr.com/)
 
-
-  
 
